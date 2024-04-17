@@ -1,10 +1,15 @@
-FROM node:lts-alpine
-ENV NODE_ENV=production
-WORKDIR /usr/src/app
-COPY ["package.json", "package-lock.json*", "npm-shrinkwrap.json*", "./"]
-RUN npm install --production --silent && mv node_modules ../
+# Step 1: Build React App
+FROM node:alpine3.18 as build
+WORKDIR /app 
+COPY package.json .
+RUN npm install
 COPY . .
+RUN npm run build
+
+# Step 2: Server With Nginx
+FROM nginx:1.23-alpine
+WORKDIR /usr/share/nginx/html
+RUN rm -rf *
+COPY --from=build /app/build .
 EXPOSE 5173
-RUN chown -R node /usr/src/app
-USER node
-CMD ["npm", "start"]
+ENTRYPOINT [ "nginx", "-g", "daemon off;" ]
