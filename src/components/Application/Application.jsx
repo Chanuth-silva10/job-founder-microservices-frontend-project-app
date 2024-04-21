@@ -62,6 +62,7 @@ const Application = () => {
     navigateTo("/");
   }
 
+  
   return (
     <section className="application">
       <div className="container">
